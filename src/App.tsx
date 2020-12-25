@@ -1,50 +1,82 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
-import Alert from 'react-bootstrap/Alert';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { clipboard, ipcRenderer } from 'electron';
+import { Button, ButtonGroup, Container, Row } from 'react-bootstrap';
 
-interface AlertComponentProps {
-  show: boolean;
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+type Content = string;
+
+interface ClippingProps {
+  content: Content;
 }
 
-function AlertComponent({ show, setShow }: AlertComponentProps) {
+const writeToClipboard = (content: Content) => {
+  clipboard.writeText(content);
+};
+
+const Clipping = ({ content }: ClippingProps) => {
   return (
-    <>
-      <Alert show={show} variant="success">
-        <Alert.Heading>Hello World!</Alert.Heading>
-        <p>
-          Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget
-          lacinia odio sem nec elit. Cras mattis consectetur purus sit amet
-          fermentum.
-        </p>
-        <hr />
-        <div className="d-flex justify-content-end">
-          <Button onClick={() => setShow(false)} variant="outline-success">
-            Close me!
-          </Button>
+    <div className="clippings-list-item">
+      <div className="clipping-text">
+        <pre>
+          <code>{content}</code>
+        </pre>
+      </div>
+      <div className="clipping-controls">
+        <Button onClick={() => writeToClipboard(content)}>
+          &rarr; Clipboard
+        </Button>{' '}
+        <Button onClick={() => {}}>Update</Button>
+      </div>
+    </div>
+  );
+};
+
+const initialClippingsState = [
+  {
+    content: 'Lol',
+    id: 123,
+  },
+  {
+    content: 'ehey',
+    id: 1233,
+  },
+];
+
+const Clipper = () => {
+  const [clippings, setClippings] = React.useState(initialClippingsState);
+
+  React.useEffect(() => {
+    const addClipping = () => {
+      const content = clipboard.readText();
+      const id = Date.now();
+
+      const clipping = { id, content };
+      setClippings([clipping, ...clippings]);
+    };
+    ipcRenderer.on('create-new-clipping', addClipping);
+  }, [clippings]);
+
+  return (
+    <Container fluid>
+      <Row className="controls">
+        <Button type="button">Copy from Clipboard</Button>
+      </Row>
+      <Row className="content">
+        <div className="clippings-list">
+          {clippings.map((clipping) => (
+            <Clipping content={clipping.content} key={clipping.id} />
+          ))}
         </div>
-      </Alert>
-    </>
+      </Row>
+    </Container>
   );
-}
-
-function AlertDismissible() {
-  const [show, setShow] = React.useState(true);
-
-  return (
-    <>
-      {show && <AlertComponent show={show} setShow={setShow} />}
-      {!show && <Button onClick={() => setShow(true)}>Show Alert</Button>}
-    </>
-  );
-}
+};
 
 export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/" component={AlertDismissible} />
+        <Route path="/" component={Clipper} />
       </Switch>
     </Router>
   );

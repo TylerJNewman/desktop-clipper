@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell, globalShortcut } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -109,6 +109,18 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+
+  const createClippingShortcut = globalShortcut.register(
+    'CommandOrControl+!',
+    () => {
+      console.log('Going to send a message to create a new clipping');
+      mainWindow?.webContents.send('create-new-clipping');
+    }
+  );
+
+  if (!createClippingShortcut) {
+    console.error('Registration Failed', 'create-clipping');
+  }
 };
 
 /**
