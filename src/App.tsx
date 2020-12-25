@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { clipboard, ipcRenderer } from 'electron';
-import { Button, ButtonGroup, Container, Row } from 'react-bootstrap';
+import { Button, Container, Row } from 'react-bootstrap';
 
 type Content = string;
 
@@ -17,7 +17,7 @@ const Clipping = ({ content }: ClippingProps) => {
   return (
     <div className="clippings-list-item">
       <div className="clipping-text">
-        <pre>
+        <pre className="pt-3">
           <code>{content}</code>
         </pre>
       </div>
@@ -45,26 +45,29 @@ const initialClippingsState = [
 const Clipper = () => {
   const [clippings, setClippings] = React.useState(initialClippingsState);
 
-  React.useEffect(() => {
-    const addClipping = () => {
-      const content = clipboard.readText();
-      const id = Date.now();
+  const addClipping = React.useCallback(() => {
+    const content = clipboard.readText();
+    const id = Date.now();
 
-      const clipping = { id, content };
-      setClippings([clipping, ...clippings]);
-    };
-    ipcRenderer.on('create-new-clipping', addClipping);
+    const clipping = { id, content };
+    setClippings([clipping, ...clippings]);
   }, [clippings]);
+
+  React.useEffect(() => {
+    ipcRenderer.on('create-new-clipping', addClipping);
+  }, [addClipping, clippings]);
 
   return (
     <Container fluid>
       <Row className="controls">
-        <Button type="button">Copy from Clipboard</Button>
+        <Button type="button" onClick={addClipping}>
+          Copy from Clipboard
+        </Button>
       </Row>
       <Row className="content">
         <div className="clippings-list">
-          {clippings.map((clipping) => (
-            <Clipping content={clipping.content} key={clipping.id} />
+          {clippings.map(({ content, id }) => (
+            <Clipping content={content} key={id} />
           ))}
         </div>
       </Row>
