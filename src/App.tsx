@@ -1,49 +1,50 @@
 import React from 'react';
+import { Button } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import icon from '../assets/icon.svg';
 
-const Hello = () => {
+interface AlertComponentProps {
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function AlertComponent({ show, setShow }: AlertComponentProps) {
   return (
-    <div>
-      <div className="Hello">
-        <img width="200px" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
-    </div>
+    <>
+      <Alert show={show} variant="success">
+        <Alert.Heading>Hello World!</Alert.Heading>
+        <p>
+          Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget
+          lacinia odio sem nec elit. Cras mattis consectetur purus sit amet
+          fermentum.
+        </p>
+        <hr />
+        <div className="d-flex justify-content-end">
+          <Button onClick={() => setShow(false)} variant="outline-success">
+            Close me!
+          </Button>
+        </div>
+      </Alert>
+    </>
   );
-};
+}
+
+function AlertDismissible() {
+  const [show, setShow] = React.useState(true);
+
+  return (
+    <>
+      {show && <AlertComponent show={show} setShow={setShow} />}
+      {!show && <Button onClick={() => setShow(true)}>Show Alert</Button>}
+    </>
+  );
+}
 
 export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/" component={Hello} />
+        <Route path="/" component={AlertDismissible} />
       </Switch>
     </Router>
   );
