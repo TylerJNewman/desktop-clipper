@@ -121,6 +121,18 @@ const createWindow = async () => {
   if (!createClippingShortcut) {
     console.error('Registration Failed', 'create-clipping');
   }
+
+  const writeToClipBoardShortcut = globalShortcut.register(
+    'CommandOrControl+@',
+    () => {
+      console.log('Going to send a message to create a new clipping');
+      mainWindow?.webContents.send('write-to-clipboard');
+    }
+  );
+
+  if (!createClippingShortcut) {
+    console.error('Registration Failed', 'write-to-clipboard');
+  }
 };
 
 /**

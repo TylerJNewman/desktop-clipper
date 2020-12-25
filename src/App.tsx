@@ -53,9 +53,15 @@ const Clipper = () => {
     setClippings([clipping, ...clippings]);
   }, [clippings]);
 
+  const handleWriteToClipboard = React.useCallback(() => {
+    const [clipping] = clippings;
+    if (clipping) writeToClipboard(clipping.content);
+  }, [clippings]);
+
   React.useEffect(() => {
     ipcRenderer.on('create-new-clipping', addClipping);
-  }, [addClipping, clippings]);
+    ipcRenderer.on('write-to-clipboard', handleWriteToClipboard);
+  }, [addClipping, clippings, handleWriteToClipboard]);
 
   return (
     <Container fluid>
